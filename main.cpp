@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<string.h>
-#define MAXN 100
-#define LENGTH 10
+#define MAXN 101
+#define LENGTH 11
 
 void add_student();
 void remove_student();
@@ -19,6 +19,7 @@ typedef struct {
 	//chinese, math, englishm programming
 	int score[4];
 	int number;
+	int removed;
 }Student;
 
 Student student_list[MAXN];
@@ -29,7 +30,7 @@ const char* subject[4] = { "Chinese", "Mathematics", "English", "Programming" };
 int main() {
 	int choice = 1;
 	while (choice != 0) {
-		printf("%s", subject[1]);
+		//printf("%s", subject[1]);
 		printf("Welcome to Student Performance Management System (SPMS)\n\n"
 			"1 - Add\n"
 			"2 - Remove\n"
@@ -58,7 +59,7 @@ void add_student() {
 		//student_list[count].name, 20, &student_list[count].chinese, 
 		//&student_list[count].math, &student_list[count].english, &student_list[count].programming);
 		printf("Please enter the SID, CID, name and four scores. Enter 0 to finish.\n");
-		scanf_s("%s", student_list[count].SID, LENGTH);
+		scanf_s("%s", &student_list[count].SID, LENGTH);
 		if (student_list[count].SID[0] == '0' && student_list[count].SID[1] == 0) {
 			break;
 		}
@@ -68,11 +69,13 @@ void add_student() {
 		scanf_s("%d", &student_list[count].score[1]);
 		scanf_s("%d", &student_list[count].score[2]);
 		scanf_s("%d", &student_list[count].score[3]);
+		student_list[count].removed = 0;
 		student_list[count].number = count + 1;
 		for (int i = 0; i < count; i++) {
-			if (student_list[i].SID == student_list[count].SID) {
+			if (strcmp(student_list[i].SID, student_list[count].SID) == 0) {
 				printf("Duplicated SID.\n");
-				continue;
+				count--;
+				break;
 			}
 		}
 		count++;
@@ -80,7 +83,15 @@ void add_student() {
 }
 
 void remove_student() {
-	
+	printf("Please enter SID or name. Enter 0 to finish.\n");
+	char temp_SID[LENGTH] = {'\0'};
+	scanf_s("%s", temp_SID, LENGTH);
+	for (int i = 0; i < count; i++) {
+		if (strcmp(student_list[i].SID, temp_SID) == 0) {
+			student_list[i].removed = 1;
+		}
+	}
+	printf("1 student(s) removed.\n");
 }
 
 void query() {
@@ -126,7 +137,7 @@ void print_score(int i) {
 		int sum = 0;
 		int avg_count = 0, number_passed = 0, number_failed = 0;
 		for (int q = 0; q < count; q++) {
-			if (student_list[q].CID == i) {
+			if (student_list[q].CID == i && student_list[q].removed == 0) {
 				sum += student_list[q].score[p];
 				avg_count++;
 				if (student_list[q].score[p] >= 60)
@@ -147,10 +158,9 @@ void print_all(int i) {
 	for (int x = 0; x < count; x++) {
 		int pass_count = 0;
 		for (int y = 0; y < 4; y++) {
-			if (student_list[x].score[y] >= 60) {
+			if (student_list[x].score[y] >= 60 && student_list[x].removed == 0) {
 				pass_count++;
 			}
-			
 		}
 		pass_number[pass_count]++;
 	}
